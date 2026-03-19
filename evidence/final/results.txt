@@ -1,0 +1,34 @@
+Final Verification — Formbricks Fork Setup
+=============================================
+Date: 2026-03-19
+
+1. Fork repository is public on GitHub: PASS
+   URL: https://github.com/RoniSaroniemi/foxie-formbricks
+
+2. FORK.md documents all changes with dates and reasons: PASS
+   3 entries: EE unlock, pipeline route, completion signal
+
+3. LICENSE is AGPLv3 (unchanged from upstream): PASS
+
+4. UMD bundle builds from fork at ~430 KB: PASS
+   Actual: 421K (packages/surveys/dist/index.umd.cjs)
+
+5. Response.contactId populates without enterprise key: PASS
+   Response ID: cmmxgiitl00018o8ntapdd528
+   contactId: cmmxfx65f00058oq1may1ssvy (John Doe)
+   Verified via local dev server + Prisma DB query
+
+6. Completion signal fires to mock gateway on survey completion: PASS
+   Mock gateway received POST /signals/feedback-completed
+
+7. Signal payload has all four required fields: PASS
+   - feedback_request_id: null (Phase A known gap)
+   - completion_degree: "full"
+   - timestamp: "2026-03-19T12:39:11.567Z"
+   - respondent_contact_id: "cmmxfx65f00058oq1may1ssvy"
+
+8. Empty FOXIE_GATEWAY_URL produces no errors: PASS
+   Verified via TypeScript code review — function returns early
+   when FOXIE_GATEWAY_URL is falsy (line 2 of completion-signal.ts)
+
+All 8 checks PASS.

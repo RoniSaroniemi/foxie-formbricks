@@ -22,5 +22,10 @@ Chunk 3 — Completion Signal Verification
 6. Known gap documented: feedbackRequestId is null in Phase A
    (requires Phase B session token integration)
 
+7. TypeScript type-check (tsc --noEmit): PASS
+   - 0 errors in fork-modified files
+   - 439 pre-existing errors in upstream code (mostly TS6133 unused vars in test files)
+   - Confirmed: completion-signal.ts, pipeline/route.ts, utils.ts all clean
+
 Note: Full runtime verification (mock gateway test) deferred to
 final verification step with Docker Compose.
