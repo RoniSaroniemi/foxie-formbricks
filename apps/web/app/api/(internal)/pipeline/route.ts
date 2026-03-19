@@ -2,6 +2,7 @@ import { ZPipelineInput } from "@/app/api/(internal)/pipeline/types/pipelines";
 import { responses } from "@/app/lib/api/response";
 import { transformErrorToDetails } from "@/app/lib/api/validator";
 import { CRON_SECRET } from "@/lib/constants";
+import { sendFoxieCompletionSignal } from "@/lib/foxie/completion-signal";
 import { getIntegrations } from "@/lib/integration/service";
 import { getOrganizationByEnvironmentId } from "@/lib/organization/service";
 import { getResponseCountBySurveyId } from "@/lib/response/service";
@@ -210,8 +211,16 @@ export const POST = async (request: Request) => {
       }
     }
 
+    // Foxie completion signal — fire on responseFinished
+    const foxieSignalPromise = sendFoxieCompletionSignal({
+      feedbackRequestId: null, // Phase A: session token integration not yet implemented
+      respondentContactId: response.contact?.id ?? null,
+      timestamp: new Date().toISOString(),
+      completionDegree: "full",
+    });
+
     // Await webhook and email promises with allSettled to prevent early rejection
-    const results = await Promise.allSettled([...webhookPromises, ...emailPromises]);
+    const results = await Promise.allSettled([...webhookPromises, ...emailPromises, foxieSignalPromise]);
     results.forEach((result) => {
       if (result.status === "rejected") {
         logger.error({ error: result.reason, url: request.url }, "Promise rejected");

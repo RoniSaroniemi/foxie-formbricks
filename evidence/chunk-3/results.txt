@@ -1,0 +1,26 @@
+Chunk 3 — Completion Signal Verification
+==========================================
+
+1. completion-signal.ts created: PASS
+   File: apps/web/lib/foxie/completion-signal.ts
+   - Reads FOXIE_GATEWAY_URL from environment
+   - Sends POST to /signals/feedback-completed
+   - First attempt in Promise.allSettled, retries fire-and-forget
+   - Skips silently if FOXIE_GATEWAY_URL is empty
+
+2. Pipeline route modified: PASS
+   File: apps/web/app/api/(internal)/pipeline/route.ts
+   - foxieSignalPromise added to Promise.allSettled array
+   - Fires on responseFinished event
+
+3. FOXIE_GATEWAY_URL added to .env.example: PASS
+
+4. docker-compose.override.yml created: PASS
+
+5. FORK.md updated with both changes: PASS
+
+6. Known gap documented: feedbackRequestId is null in Phase A
+   (requires Phase B session token integration)
+
+Note: Full runtime verification (mock gateway test) deferred to
+final verification step with Docker Compose.

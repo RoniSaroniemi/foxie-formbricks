@@ -1,0 +1,13 @@
+services:
+  formbricks:
+    image: ghcr.io/formbricks/formbricks:latest
+    ports:
+      - "3300:3000"
+    depends_on:
+      - valkey
+    environment:
+      - REDIS_URL=redis://valkey:6379
+
+  valkey:
+    image: valkey/valkey:8.1.1
+    restart: unless-stopped

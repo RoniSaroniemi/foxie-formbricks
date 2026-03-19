@@ -1,0 +1,18 @@
+Chunk 1 — Repository Setup Verification
+========================================
+
+1. Repository is public on GitHub: PASS
+   URL: https://github.com/RoniSaroniemi/foxie-formbricks
+
+2. FORK.md exists with base commit documented: PASS
+   Upstream base: v3.17.1 (commit 0bcd85d)
+
+3. LICENSE contains AGPLv3 text: PASS
+   First line: "Copyright (c) 2024 Formbricks GmbH"
+   Contains: "GNU Affero General Public License"
+
+4. UMD bundle builds successfully from fresh clone: PASS
+   Build completed: 4 tasks successful, 4 total
+
+5. Bundle size is ~430 KB: PASS
+   Actual: 421K (packages/surveys/dist/index.umd.cjs)
