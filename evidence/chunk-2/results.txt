@@ -1,0 +1,12 @@
+Chunk 2 — EE Feature Unlock Verification
+==========================================
+
+1. getIsContactsEnabled() modified to return true: PASS
+   File: apps/web/modules/ee/license-check/lib/utils.ts
+
+2. Change is minimal (single-line, no other EE features affected): PASS
+
+3. FORK.md updated with the change documented: PASS
+
+Note: Full runtime verification (Docker-based contact survey test)
+deferred to final verification step.
