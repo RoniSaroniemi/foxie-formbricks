@@ -1,0 +1,31 @@
+[
+  {
+    "label": "onDisplay",
+    "payload": "Survey displayed",
+    "timestamp": "2026-04-02T04:46:33.398Z"
+  },
+  {
+    "label": "onResponse",
+    "payload": {
+      "data": {
+        "rg1_target-1_open-1": "Matti handled the cycle well.",
+        "rg1_target-1_rating-1": 4,
+        "rg1_target-2_open-1": "Sarah needs clearer follow-up loops.",
+        "rg1_target-2_rating-1": 2
+      },
+      "endingId": "end1",
+      "finished": true,
+      "language": "default",
+      "ttc": {
+        "rg1": 835.4000000953674
+      },
+      "variables": {}
+    },
+    "timestamp": "2026-04-02T04:46:34.234Z"
+  },
+  {
+    "label": "onFinished",
+    "payload": "Survey finished",
+    "timestamp": "2026-04-02T04:46:34.250Z"
+  }
+]

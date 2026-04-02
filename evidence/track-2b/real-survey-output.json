@@ -1,0 +1,32 @@
+{
+  "contactAttributes": null,
+  "contactId": null,
+  "createdAt": "2026-04-02T05:10:52.905Z",
+  "data": {
+    "rg1_target-1_open-1": "Matti runtime answer.",
+    "rg1_target-1_rating-1": 4,
+    "rg1_target-2_open-1": "Sarah runtime answer.",
+    "rg1_target-2_rating-1": 2
+  },
+  "displayId": "cmnh0o1y800078omnhje0nw78",
+  "endingId": "end1",
+  "finished": true,
+  "id": "cmnh0o3c900088omnra3s2p6s",
+  "language": null,
+  "meta": {
+    "url": "http://127.0.0.1:3100/s/cmnh0nxxc00068omnp17rgn9z",
+    "userAgent": {
+      "browser": "Chrome",
+      "device": "desktop",
+      "os": "Windows"
+    }
+  },
+  "singleUseId": null,
+  "surveyId": "cmnh0nxxc00068omnp17rgn9z",
+  "ttc": {
+    "_total": 2165,
+    "rg1": 2165
+  },
+  "updatedAt": "2026-04-02T05:10:52.905Z",
+  "variables": {}
+}
