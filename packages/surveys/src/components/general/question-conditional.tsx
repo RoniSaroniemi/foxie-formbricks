@@ -13,22 +13,29 @@ import { OpenTextQuestion } from "@/components/questions/open-text-question";
 import { PictureSelectionQuestion } from "@/components/questions/picture-selection-question";
 import { RankingQuestion } from "@/components/questions/ranking-question";
 import { RatingQuestion } from "@/components/questions/rating-question";
+import { RepeatingGroupQuestion } from "@/components/questions/repeating-group-question";
 import { getLocalizedValue } from "@/lib/i18n";
 import { useEffect } from "react";
 import { type TJsFileUploadParams } from "@formbricks/types/js";
-import { type TResponseData, type TResponseDataValue, type TResponseTtc } from "@formbricks/types/responses";
+import {
+  type TResponseData,
+  type TResponseDataUpdate,
+  type TResponseDataValue,
+  type TResponseTtc,
+} from "@formbricks/types/responses";
 import { type TUploadFileConfig } from "@formbricks/types/storage";
 import {
   type TSurveyQuestion,
   type TSurveyQuestionChoice,
   type TSurveyQuestionId,
   TSurveyQuestionTypeEnum,
+  type TSurveyRepeatingGroupQuestion,
 } from "@formbricks/types/surveys/types";
 
 interface QuestionConditionalProps {
   question: TSurveyQuestion;
-  value: string | number | string[] | Record<string, string>;
-  onChange: (responseData: TResponseData) => void;
+  value: TResponseDataValue | TResponseData | undefined;
+  onChange: (responseData: TResponseDataUpdate) => void;
   onSubmit: (data: TResponseData, ttc: TResponseTtc) => void;
   onBack: () => void;
   onFileUpload: (file: TJsFileUploadParams["file"], config?: TUploadFileConfig) => Promise<string>;
@@ -73,6 +80,21 @@ export function QuestionConditional({
     return value
       .map((label) => choices.find((choice) => getLocalizedValue(choice.label, languageCode) === label)?.id)
       .filter((id): id is TSurveyQuestionChoice["id"] => id !== undefined);
+  };
+
+  const getResponseValueForMatrixQuestion = (
+    matrixValue: TResponseDataValue | TResponseData | undefined
+  ): Record<string, string> => {
+    if (
+      typeof matrixValue === "object" &&
+      matrixValue !== null &&
+      !Array.isArray(matrixValue) &&
+      Object.values(matrixValue).every((entry) => typeof entry === "string")
+    ) {
+      return matrixValue as Record<string, string>;
+    }
+
+    return {};
   };
 
   useEffect(() => {
@@ -279,7 +301,7 @@ export function QuestionConditional({
   ) : question.type === TSurveyQuestionTypeEnum.Matrix ? (
     <MatrixQuestion
       question={question}
-      value={typeof value === "object" && !Array.isArray(value) ? value : {}}
+      value={getResponseValueForMatrixQuestion(value)}
       onChange={onChange}
       onSubmit={onSubmit}
       onBack={onBack}
@@ -327,6 +349,22 @@ export function QuestionConditional({
     <ContactInfoQuestion
       question={question}
       value={Array.isArray(value) ? value : undefined}
+      onChange={onChange}
+      onSubmit={onSubmit}
+      onBack={onBack}
+      isFirstQuestion={isFirstQuestion}
+      isLastQuestion={isLastQuestion}
+      languageCode={languageCode}
+      ttc={ttc}
+      setTtc={setTtc}
+      currentQuestionId={currentQuestionId}
+      autoFocusEnabled={autoFocusEnabled}
+      isBackButtonHidden={isBackButtonHidden}
+    />
+  ) : question.type === TSurveyQuestionTypeEnum.RepeatingGroup ? (
+    <RepeatingGroupQuestion
+      question={question as TSurveyRepeatingGroupQuestion}
+      value={typeof value === "object" && value !== null && !Array.isArray(value) ? value : {}}
       onChange={onChange}
       onSubmit={onSubmit}
       onBack={onBack}

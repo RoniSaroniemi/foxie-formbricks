@@ -1,6 +1,10 @@
-export const processResponseData = (
-  responseData: string | number | string[] | Record<string, string>
-): string => {
+import {
+  type TResponseData,
+  type TResponseDataUpdate,
+  type TResponseDataValue,
+} from "@formbricks/types/responses";
+
+export const processResponseData = (responseData: TResponseDataValue | undefined): string => {
   switch (typeof responseData) {
     case "string":
       return responseData;
@@ -25,4 +29,27 @@ export const processResponseData = (
     default:
       return "";
   }
+};
+
+export const applyResponseDataUpdate = (
+  responseData: TResponseData,
+  responseDataUpdate: TResponseDataUpdate
+): TResponseData => {
+  const updatedResponseData = { ...responseData };
+
+  for (const [key, value] of Object.entries(responseDataUpdate)) {
+    if (value === undefined) {
+      delete updatedResponseData[key];
+    } else {
+      updatedResponseData[key] = value;
+    }
+  }
+
+  return updatedResponseData;
+};
+
+export const getPrefixedResponseData = (responseData: TResponseData, prefix: string): TResponseData => {
+  return Object.fromEntries(
+    Object.entries(responseData).filter(([key]) => key.startsWith(prefix))
+  ) as TResponseData;
 };

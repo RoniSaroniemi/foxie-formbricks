@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { processResponseData } from "./response";
+import { applyResponseDataUpdate, getPrefixedResponseData, processResponseData } from "./response";
 
 describe("processResponseData", () => {
   test("should return the same string if input is a string", () => {
@@ -64,5 +64,33 @@ describe("processResponseData", () => {
     // This tests the default case of the switch statement.
     // Need to cast to 'any' to bypass TypeScript's stricter typing for the function signature.
     expect(processResponseData(undefined as any)).toBe("");
+  });
+});
+
+describe("applyResponseDataUpdate", () => {
+  test("merges new keys into the existing response data", () => {
+    expect(applyResponseDataUpdate({ q1: "hello" }, { q2: 4 })).toEqual({ q1: "hello", q2: 4 });
+  });
+
+  test("deletes keys whose update value is undefined", () => {
+    expect(applyResponseDataUpdate({ q1: "hello", q2: 4 }, { q2: undefined })).toEqual({ q1: "hello" });
+  });
+});
+
+describe("getPrefixedResponseData", () => {
+  test("returns only entries that match the provided prefix", () => {
+    expect(
+      getPrefixedResponseData(
+        {
+          rg1_target_1_rating: 4,
+          rg1_target_1_open: "Strong collaboration",
+          q2: "Other answer",
+        },
+        "rg1_"
+      )
+    ).toEqual({
+      rg1_target_1_rating: 4,
+      rg1_target_1_open: "Strong collaboration",
+    });
   });
 });

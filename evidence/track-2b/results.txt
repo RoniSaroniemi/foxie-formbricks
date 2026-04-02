@@ -1,0 +1,55 @@
+Date: 2026-04-02
+Branch: feat/repeating-group-question
+
+Implementation summary
+- Added additive `repeatingGroup` survey question support.
+- Added composite-key response update helpers so repeated sub-questions can merge and delete keys safely.
+- Routed repeating-group values through `Survey` and `QuestionConditional` without changing survey navigation/state machinery.
+- Added a proof-of-concept fixture at `poc/repeating-group/`.
+
+Automated verification
+- PASS: `pnpm --filter @formbricks/surveys test`
+- PASS: `npx turbo run build --filter=@formbricks/surveys`
+- PASS: `pnpm verify:repeating-group:harness`
+- PASS: `pnpm exec playwright test -c playwright.repeating-group.real.config.ts --grep @repeating-group-real`
+
+Focused test coverage added
+- PASS: response update helper merge/delete behavior
+- PASS: repeating-group routing in `QuestionConditional`
+- PASS: survey passes prefixed composite answers to repeating-group questions
+- PASS: repeating-group renders target rows
+- PASS: accordion expansion renders repeated sub-questions
+- PASS: child answers merge into composite-key response data
+- PASS: submit sends accumulated repeating-group response data and updated TTC
+- PASS: unlisted targets are added with deterministic ids
+- PASS: unlisted targets can be removed and their composite keys are deleted
+- PASS: max-target warning is shown
+
+Operational harness evidence
+- PASS: Playwright Chromium launched and exercised the proof harness end to end
+- PASS: Screenshots captured for initial render, expansion, per-target answers, `"Other..."`, removal, and final state
+- PASS: `harness-events.json` shows final `onResponse` payload with composite keys for target 1 and target 2
+- PASS: Removed unlisted target keys are absent from the final submitted payload
+- NOTE: Playwright uncovered and the implementation fixed a runtime rerender bug where accordion expansion state was being reset by unstable `question.targets` dependencies
+
+Operational real-survey evidence
+- PASS: Local Docker-backed Formbricks runtime launched on `http://127.0.0.1:3100`
+- PASS: Real survey created through `POST /api/v1/management/surveys`
+- PASS: Public survey URL loaded at `/s/cmnh0nxxc00068omnp17rgn9z`
+- PASS: Playwright captured screenshots for initial render, target 1, target 2, unlisted target add/remove, and final state
+- PASS: Persisted finished response stored in `real-survey-output.json`
+- PASS: Final persisted response contains:
+  - `rg1_target-1_rating-1 = 4`
+  - `rg1_target-1_open-1 = "Matti runtime answer."`
+  - `rg1_target-2_rating-1 = 2`
+  - `rg1_target-2_open-1 = "Sarah runtime answer."`
+- PASS: Removed unlisted target keys are absent from the persisted final response
+- NOTE: The management API rejected an empty ending-card `buttonLink`; the verification fixture now uses `https://example.com/close`
+
+Build output
+- `packages/surveys/dist/index.umd.cjs`: 439K on disk
+
+Operational verification status
+- PASS: browser-backed harness verification completed with Playwright and evidence stored under `evidence/track-2b/`
+- PASS: real-survey Playwright verification completed against a local Docker-backed Formbricks instance
+- PASS: operational proof now includes real screenshots, survey creation evidence, and a persisted finished response

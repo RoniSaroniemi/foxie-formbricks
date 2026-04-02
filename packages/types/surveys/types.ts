@@ -69,6 +69,7 @@ export enum TSurveyQuestionTypeEnum {
   Address = "address",
   Ranking = "ranking",
   ContactInfo = "contactInfo",
+  RepeatingGroup = "repeatingGroup",
 }
 
 export const ZSurveyQuestionId = z.string().superRefine((id, ctx) => {
@@ -227,11 +228,14 @@ export const ZSurveyRecaptcha = z
 
 export type TSurveyRecaptcha = z.infer<typeof ZSurveyRecaptcha>;
 
-export const ZSurveyMetadata = z.object({
-  title: ZI18nString.optional(),
-  description: ZI18nString.optional(),
-  ogImage: z.string().url().optional(),
-});
+export const ZSurveyMetadata = z
+  .object({
+    title: ZI18nString.optional(),
+    description: ZI18nString.optional(),
+    ogImage: z.string().url().optional(),
+  })
+  // Foxie integration stores survey-level dynamic element declarations here.
+  .catchall(z.unknown());
 
 export type TSurveyMetadata = z.infer<typeof ZSurveyMetadata>;
 
@@ -691,6 +695,29 @@ export const ZSurveyRankingQuestion = ZSurveyQuestionBase.extend({
 
 export type TSurveyRankingQuestion = z.infer<typeof ZSurveyRankingQuestion>;
 
+export const ZSurveyRepeatingGroupTarget = z.object({
+  id: z.string(),
+  name: z.string(),
+  displayData: z.record(z.string()).optional(),
+  isUnlisted: z.boolean().default(false),
+});
+
+export type TSurveyRepeatingGroupTarget = z.infer<typeof ZSurveyRepeatingGroupTarget>;
+
+export const ZSurveyRepeatingGroupSubQuestion = z.union([ZSurveyRatingQuestion, ZSurveyOpenTextQuestion]);
+
+export type TSurveyRepeatingGroupSubQuestion = z.infer<typeof ZSurveyRepeatingGroupSubQuestion>;
+
+export const ZSurveyRepeatingGroupQuestion = ZSurveyQuestionBase.extend({
+  type: z.literal(TSurveyQuestionTypeEnum.RepeatingGroup),
+  targets: z.array(ZSurveyRepeatingGroupTarget),
+  subQuestions: z.array(ZSurveyRepeatingGroupSubQuestion),
+  required: z.boolean().default(false),
+  maxTargets: z.number().optional().default(20),
+});
+
+export type TSurveyRepeatingGroupQuestion = z.infer<typeof ZSurveyRepeatingGroupQuestion>;
+
 export const ZSurveyQuestion = z.union([
   ZSurveyOpenTextQuestion,
   ZSurveyConsentQuestion,
@@ -706,6 +733,7 @@ export const ZSurveyQuestion = z.union([
   ZSurveyAddressQuestion,
   ZSurveyRankingQuestion,
   ZSurveyContactInfoQuestion,
+  ZSurveyRepeatingGroupQuestion,
 ]);
 
 export type TSurveyQuestion = z.infer<typeof ZSurveyQuestion>;
@@ -730,6 +758,7 @@ export const ZSurveyQuestionType = z.enum([
   TSurveyQuestionTypeEnum.Cal,
   TSurveyQuestionTypeEnum.Ranking,
   TSurveyQuestionTypeEnum.ContactInfo,
+  TSurveyQuestionTypeEnum.RepeatingGroup,
 ]);
 
 export type TSurveyQuestionType = z.infer<typeof ZSurveyQuestionType>;
