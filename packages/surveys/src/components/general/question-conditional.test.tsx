@@ -13,6 +13,14 @@ vi.mock("@/components/questions/date-question", () => ({
     )),
 }));
 
+vi.mock("@/components/questions/repeating-group-question", () => ({
+  RepeatingGroupQuestion: vi
+    .fn()
+    .mockImplementation(({ question }) => (
+      <div data-testid="mock-repeating-group-question">{question.headline.default}</div>
+    )),
+}));
+
 describe("QuestionConditional", () => {
   const mockOnChange = vi.fn();
   const mockOnSubmit = vi.fn();
@@ -224,5 +232,51 @@ describe("QuestionConditional", () => {
     render(<QuestionConditional {...baseProps} question={question} value="" />);
 
     expect(screen.getByText("Invalid Question")).toBeInTheDocument();
+  });
+
+  test("renders RepeatingGroup question correctly", () => {
+    const question = {
+      id: "rg1",
+      type: TSurveyQuestionTypeEnum.RepeatingGroup as const,
+      headline: { default: "Evaluate each team member" },
+      subheader: { default: "Open a row to answer the repeated questions." },
+      required: false,
+      buttonLabel: { default: "Next" },
+      backButtonLabel: { default: "Back" },
+      targets: [
+        {
+          id: "target-1",
+          name: "Matti Virtanen",
+          displayData: { name: "Matti Virtanen" },
+          isUnlisted: false,
+        },
+      ],
+      subQuestions: [
+        {
+          id: "rating-1",
+          type: TSurveyQuestionTypeEnum.Rating as const,
+          headline: { default: "Rate {{target.name}}" },
+          required: false,
+          scale: "number" as const,
+          range: 5 as const,
+          lowerLabel: { default: "Poor" },
+          upperLabel: { default: "Excellent" },
+          isColorCodingEnabled: false,
+        },
+      ],
+      maxTargets: 20,
+    };
+
+    render(
+      <QuestionConditional
+        {...baseProps}
+        question={question as any}
+        value={{ rg1_target_1_rating: 4, rg1_target_1_open: "Strong collaboration" }}
+      />
+    );
+
+    expect(screen.getByTestId("mock-repeating-group-question")).toHaveTextContent(
+      "Evaluate each team member"
+    );
   });
 });

@@ -38,6 +38,7 @@ export type TResponseDataValue = z.infer<typeof ZResponseDataValue>;
 export const ZResponseData = z.record(ZResponseDataValue);
 
 export type TResponseData = z.infer<typeof ZResponseData>;
+export type TResponseDataUpdate = Record<string, TResponseDataValue | undefined>;
 
 export const ZResponseVariables = z.record(z.union([z.string(), z.number()]));
 

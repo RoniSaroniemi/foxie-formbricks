@@ -13,6 +13,7 @@ import { StackedCardsContainer } from "@/components/wrappers/stacked-cards-conta
 import { ApiClient } from "@/lib/api-client";
 import { evaluateLogic, performActions } from "@/lib/logic";
 import { parseRecallInformation } from "@/lib/recall";
+import { applyResponseDataUpdate, getPrefixedResponseData } from "@/lib/response";
 import { ResponseQueue } from "@/lib/response-queue";
 import { SurveyState } from "@/lib/survey-state";
 import { cn, getDefaultLanguageCode } from "@/lib/utils";
@@ -23,13 +24,14 @@ import { SurveyContainerProps } from "@formbricks/types/formbricks-surveys";
 import { type TJsEnvironmentStateSurvey, TJsFileUploadParams } from "@formbricks/types/js";
 import type {
   TResponseData,
+  TResponseDataUpdate,
   TResponseDataValue,
   TResponseTtc,
   TResponseUpdate,
   TResponseVariables,
 } from "@formbricks/types/responses";
 import { TUploadFileConfig } from "@formbricks/types/storage";
-import { type TSurveyQuestionId } from "@formbricks/types/surveys/types";
+import { type TSurveyQuestionId, TSurveyQuestionTypeEnum } from "@formbricks/types/surveys/types";
 
 interface VariableStackEntry {
   questionId: TSurveyQuestionId;
@@ -322,9 +324,8 @@ export function Survey({
     setselectedLanguage(languageCode);
   }, [languageCode]);
 
-  const onChange = (responseDataUpdate: TResponseData) => {
-    const updatedResponseData = { ...responseData, ...responseDataUpdate };
-    setResponseData(updatedResponseData);
+  const onChange = (responseDataUpdate: TResponseDataUpdate) => {
+    setResponseData((prevResponseData) => applyResponseDataUpdate(prevResponseData, responseDataUpdate));
   };
 
   const onChangeVariables = (variables: TResponseVariables) => {
@@ -554,7 +555,7 @@ export function Survey({
   }, [isResponseSendingFinished, isSurveyFinished, onFinished]);
 
   const onSubmit = async (surveyResponseData: TResponseData, responsettc: TResponseTtc) => {
-    const respondedQuestionId = Object.keys(surveyResponseData)[0];
+    const respondedQuestionId = currentQuestion?.id ?? Object.keys(surveyResponseData)[0];
     setLoadingElement(true);
 
     if (isSpamProtectionEnabled && !surveyState?.responseId && getRecaptchaToken) {
@@ -708,13 +709,17 @@ export function Survey({
         }
       } else {
         const question = localSurvey.questions[questionIdx];
+        const questionValue =
+          question.type === TSurveyQuestionTypeEnum.RepeatingGroup
+            ? getPrefixedResponseData(responseData, `${question.id}_`)
+            : responseData[question.id];
         return (
           Boolean(question) && (
             <QuestionConditional
               key={question.id}
               surveyId={localSurvey.id}
               question={parseRecallInformation(question, selectedLanguage, responseData, currentVariables)}
-              value={responseData[question.id]}
+              value={questionValue}
               onChange={onChange}
               onSubmit={onSubmit}
               onBack={onBack}

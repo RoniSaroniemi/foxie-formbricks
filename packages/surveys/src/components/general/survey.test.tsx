@@ -1,8 +1,9 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/preact";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/preact";
 import { JSX } from "preact";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import type { TJsEnvironmentStateSurvey } from "@formbricks/types/js";
+import { QuestionConditional } from "./question-conditional";
 import { Survey } from "./survey";
 
 // Mock all the imported components
@@ -327,6 +328,89 @@ describe("Survey", () => {
           ttc: { q1: 1000 },
         })
       );
+    });
+  });
+
+  test("passes prefixed composite answers to repeating group questions", () => {
+    let setResponseDataFn: ((value: Record<string, any>) => void) | undefined;
+    const repeatingGroupSurvey = {
+      ...mockSurvey,
+      questions: [
+        {
+          id: "rg1",
+          type: "repeatingGroup",
+          headline: { default: "Evaluate each team member" },
+          subheader: { default: "" },
+          required: false,
+          buttonLabel: { default: "Next" },
+          backButtonLabel: { default: "Back" },
+          targets: [
+            {
+              id: "target-1",
+              name: "Matti Virtanen",
+              displayData: { name: "Matti Virtanen" },
+              isUnlisted: false,
+            },
+          ],
+          subQuestions: [
+            {
+              id: "rating-1",
+              type: "rating",
+              headline: { default: "Rate {{target.name}}" },
+              required: false,
+              scale: "number",
+              range: 5,
+              lowerLabel: { default: "Poor" },
+              upperLabel: { default: "Excellent" },
+              isColorCodingEnabled: false,
+            },
+          ],
+          maxTargets: 20,
+        },
+      ],
+    } as unknown as TJsEnvironmentStateSurvey;
+
+    render(
+      <Survey
+        survey={repeatingGroupSurvey}
+        styling={{
+          brandColor: { light: "#000000" },
+          cardArrangement: { appSurveys: "straight", linkSurveys: "straight" },
+        }}
+        isBrandingEnabled={true}
+        isPreviewMode={false}
+        onDisplay={onDisplayMock}
+        onResponse={onResponseMock}
+        onClose={onCloseMock}
+        onFinished={onFinishedMock}
+        onFileUpload={onFileUploadMock}
+        onDisplayCreated={onDisplayCreatedMock}
+        onResponseCreated={onResponseCreatedMock}
+        onOpenExternalURL={onOpenExternalURLMock}
+        getRecaptchaToken={getRecaptchaTokenMock}
+        isSpamProtectionEnabled={false}
+        languageCode="default"
+        startAtQuestionId="rg1"
+        getSetResponseData={(setter) => {
+          setResponseDataFn = setter;
+        }}
+      />
+    );
+
+    act(() => {
+      setResponseDataFn?.({
+        "rg1_target-1_rating-1": 4,
+        "rg1_target-1_open-1": "Strong collaboration",
+        q2: "unrelated answer",
+      });
+    });
+
+    const questionConditionalMock = vi.mocked(QuestionConditional);
+    const latestCall = questionConditionalMock.mock.calls.at(-1)?.[0];
+
+    expect(latestCall?.value).toEqual({
+      "rg1_target-1_rating-1": 4,
+      "rg1_target-1_open-1": "Strong collaboration",
     });
   });
 

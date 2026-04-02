@@ -109,7 +109,22 @@ export const ZJsUserIdentifyInput = z.object({
 
 export type TJsPersonIdentifyInput = z.infer<typeof ZJsUserIdentifyInput>;
 
-export const ZJsConfig = z.object({
+type TJsConfigStatus = {
+  value: "success" | "error";
+  expiresAt: Date | null;
+};
+
+export type TJsConfig = {
+  environmentId: string;
+  apiHost: string;
+  environmentState: TJsEnvironmentState;
+  personState: TJsPersonState;
+  filteredSurveys: TJsEnvironmentStateSurvey[];
+  attributes: Record<string, string>;
+  status: TJsConfigStatus;
+};
+
+export const ZJsConfig: z.ZodObject<any> = z.object({
   environmentId: z.string().cuid(),
   apiHost: z.string(),
   environmentState: ZJsEnvironmentState,
@@ -122,9 +137,11 @@ export const ZJsConfig = z.object({
   }),
 });
 
-export type TJsConfig = z.infer<typeof ZJsConfig>;
+export type TJsConfigUpdateInput = Omit<TJsConfig, "status"> & {
+  status?: TJsConfigStatus;
+};
 
-export const ZJsConfigUpdateInput = ZJsConfig.omit({ status: true }).extend({
+export const ZJsConfigUpdateInput: z.ZodObject<any> = ZJsConfig.omit({ status: true }).extend({
   status: z
     .object({
       value: z.enum(["success", "error"]),
@@ -132,8 +149,6 @@ export const ZJsConfigUpdateInput = ZJsConfig.omit({ status: true }).extend({
     })
     .optional(),
 });
-
-export type TJsConfigUpdateInput = z.infer<typeof ZJsConfigUpdateInput>;
 
 export const ZJsConfigInput = z.object({
   environmentId: z.string().cuid2(),
